@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <title>Items</title>
+        <script src="index.js"></script>
+        <style>
+            .remove-link {
+                color: blue;
+                cursor: pointer;
+                margin-left: 5px;
+            }
+        </style>
+    </head>
+    <body onload="load()">
+        <p>
+            New Item <input type="text" id="userInput" placeholder="New Item">
+        </p>
+       
+        
+        <button onclick="addItemList()">Adauga</button>
+        <ul id="itemList">
+        </ul>
+        <br>
+        
+    
+        <script>
+            function addItemList() {
+                var userInput = document.getElementById("userInput").value;
+                if (userInput.trim() !== "") {
+                    var ul = document.getElementById("itemList");
+                    var li = document.createElement("li");
+                    li.appendChild(document.createTextNode(userInput));
+                    var removeLink = document.createElement("a");
+                    removeLink.className = "remove-link";
+                    removeLink.innerHTML = "Remove";
+                    removeLink.onclick = function () {
+                        removeItem(li);
+                    };
+
+                    li.appendChild(removeLink);
+                    var inputElement = document.createElement("input");
+                    inputElement.type = "text";
+                    inputElement.placeholder = "Change item";
+                    inputElement.onkeyup = function (event) {
+                        changeItem(li, inputElement, event, itemId);
+                    };
+                    li.appendChild(inputElement);
+
+                    ul.appendChild(li);
+                    document.getElementById("userInput").value = ""; 
+                }
+            }
+            function removeItem(item) {
+                var ul = document.getElementById("itemList");
+                ul.removeChild(item);
+            }
+            function changeItem(item, inputElement, event, itemId) {
+            if (event.key === "Enter" && inputElement.value.trim() !== "") {
+                const newText = inputElement.value;
+                
+                fetch(`/items/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: newText })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        item.firstChild.textContent = newText;
+                    } else {
+                        alert("Failed to update item on the server.");
+                    }
+                })
+                .catch(error => {
+                    alert("An error occurred while updating the item.");
+                });
+            }
+        }
+
+
+        
+        </script>
+    </body>
+      
+    
+   
+</html>
